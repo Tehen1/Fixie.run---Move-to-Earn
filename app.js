@@ -84,37 +84,68 @@ class FixieApp {
     }
   }
 
-  // Enable GPS tracking
-  enableGPS() {
-    const statusEl = document.getElementById('gps-status-text');
-    
-    if (!navigator.geolocation) {
-      statusEl.textContent = 'GPS non supporté';
-      this.initializeMap([48.8566, 2.3522]); // Paris fallback
-      return;
-    }
-
-    statusEl.textContent = 'Recherche GPS...';
-    
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        statusEl.textContent = `GPS actif (±${Math.round(position.coords.accuracy)}m)`;
-        this.initializeMap([latitude, longitude]);
-        this.startGPSTracking();
-      },
-      (error) => {
-        console.warn('GPS error:', error);
-        statusEl.textContent = 'GPS indisponible';
-        this.initializeMap([48.8566, 2.3522]); // Paris fallback
-      },
-      { 
-        enableHighAccuracy: true, 
-        timeout: 15000, 
-        maximumAge: 5000 
-      }
-    );
+  // Enable GPS tracking with better error handling
+enableGPS() {
+  const statusEl = document.getElementById('gps-status-text');
+  
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'GPS non supporté';
+    this.initializeMap([48.8566, 2.3522]); // Paris fallback
+    return;
   }
+
+  // Check if running on HTTPS
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    statusEl.textContent = 'GPS nécessite HTTPS';
+    this.initializeMap([48.8566, 2.3522]);
+    return;
+  }
+
+  statusEl.textContent = 'Demande position GPS...';
+  
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 20000, // 20 secondes
+    maximumAge: 60000 // 1 minute
+  };
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      statusEl.textContent = `GPS actif (±${Math.round(accuracy)}m)`;
+      console.log('✅ GPS position obtenue:', latitude, longitude);
+      this.initializeMap([latitude, longitude]);
+      this.startGPSTracking();
+    },
+    (error) => {
+      console.warn('⚠️ GPS error:', error);
+      let message = 'GPS indisponible';
+      
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message = 'GPS refusé par utilisateur';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = 'Position GPS indisponible';
+          break;
+        case error.TIMEOUT:
+          message = 'GPS timeout';
+          break;
+      }
+      
+      statusEl.textContent = message;
+      // Fallback Paris avec indication
+      this.initializeMap([48.8566, 2.3522]);
+      
+      // Retry après 5 secondes si c'est un timeout
+      if (error.code === error.TIMEOUT) {
+        setTimeout(() => this.enableGPS(), 5000);
+      }
+    },
+    options
+  );
+}
+
 
   // Initialize map
   initializeMap(center = [48.8566, 2.3522]) {
