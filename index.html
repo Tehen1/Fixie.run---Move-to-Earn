@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1F2121">
+    <title>Fixie.run - Move to Earn</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRml4aWUucnVuIiwic2hvcnRfbmFtZSI6IkZpeGllIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxRjIxMjEiLCJ0aGVtZV9jb2xvciI6IiMxRjIxMjEiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M00zUnZjbWN2TWpBd01DOXpkbWNpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJZ1ptbHNiRDBpSXpBd1pEUm1aaUkrUEhCaGRHZ2daRDBpYlRFeUlERTJZell1TmpNZ09TNHpOeTQyTXlBNUxqTTNMalUyTFNReElEQXVNVEV0TVM0eE1pNDJNeTQxTmkweElERXVNVEJqTUM0M055NDBNeUF4TGpBeklERXVOamd0TGpRMklESXVOVFF0TVM0M09YTTNMalV4TFRFdU1qRWdPUzR6TmkwMExqSXpZMEVzSUM0MElERXVOaWdqTkM0M1F5QXpMaTB1TFRNdU5DMDFJSEJhSWk4K1BDOXpkbWMrIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Leaflet CSS and JS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-text">Fixie.run</span>
+            </div>
+            <div class="gps-status">
+                <span class="gps-indicator active"></span>
+                <span class="gps-text">GPS Actif</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Home View -->
+        <div id="home-view" class="view active">
+            <div class="greeting-section">
+                <h1>Salut, Cycliste!</h1>
+                <div class="token-display">
+                    <span class="token-amount">8,550</span>
+                    <span class="token-label">FIXIE Tokens</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-progress">
+                        <svg class="progress-circle" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" class="progress-bg"></circle>
+                            <circle cx="50" cy="50" r="40" class="progress-bar" style="--progress: 75"></circle>
+                        </svg>
+                        <div class="stat-value">5.2 km</div>
+                    </div>
+                    <div class="stat-label">Distance</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-progress">
+                        <svg class="progress-circle" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" class="progress-bg"></circle>
+                            <circle cx="50" cy="50" r="40" class="progress-bar" style="--progress: 60"></circle>
+                        </svg>
+                        <div class="stat-value">38m</div>
+                    </div>
+                    <div class="stat-label">Durée</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-progress">
+                        <svg class="progress-circle" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" class="progress-bg"></circle>
+                            <circle cx="50" cy="50" r="40" class="progress-bar" style="--progress: 45"></circle>
+                        </svg>
+                        <div class="stat-value">187</div>
+                    </div>
+                    <div class="stat-label">Calories</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-progress">
+                        <svg class="progress-circle" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" class="progress-bg"></circle>
+                            <circle cx="50" cy="50" r="40" class="progress-bar" style="--progress: 85"></circle>
+                        </svg>
+                        <div class="stat-value">42</div>
+                    </div>
+                    <div class="stat-label">Tokens</div>
+                </div>
+            </div>
+
+            <div class="map-section">
+                <div id="map" class="map-container"></div>
+                <div class="workout-controls">
+                    <div class="current-stats">
+                        <div class="current-stat">
+                            <span class="stat-label">Vitesse</span>
+                            <span class="stat-value" id="current-speed">0.0 km/h</span>
+                        </div>
+                        <div class="current-stat">
+                            <span class="stat-label">Distance</span>
+                            <span class="stat-value" id="current-distance">0.0 km</span>
+                        </div>
+                        <div class="current-stat">
+                            <span class="stat-label">Temps</span>
+                            <span class="stat-value" id="current-time">00:00</span>
+                        </div>
+                    </div>
+                    <button class="start-workout-btn" id="start-workout">COMMENCER</button>
+                </div>
+            </div>
+
+            <div class="goals-section">
+                <h3>Objectifs du Jour</h3>
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-icon">🚶</span>
+                        <div class="goal-text">
+                            <div class="goal-title">Marcher 5km</div>
+                            <div class="goal-progress">3.2 / 5.0 km</div>
+                        </div>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" style="width: 64%"></div>
+                    </div>
+                </div>
+                
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-icon">🚴</span>
+                        <div class="goal-text">
+                            <div class="goal-title">Vélo 15km</div>
+                            <div class="goal-progress">5.2 / 15.0 km</div>
+                        </div>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" style="width: 35%"></div>
+                    </div>
+                </div>
+                
+                <div class="goal-item">
+                    <div class="goal-info">
+                        <span class="goal-icon">🏃</span>
+                        <div class="goal-text">
+                            <div class="goal-title">Courir 3km</div>
+                            <div class="goal-progress">0 / 3.0 km</div>
+                        </div>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="analytics-view" class="view">
+            <div class="analytics-tabs">
+                <button class="tab-btn active" data-tab="overview">Vue d'ensemble</button>
+                <button class="tab-btn" data-tab="analytics">Analytiques</button>
+                <button class="tab-btn" data-tab="trends">Trends</button>
+                <button class="tab-btn" data-tab="urban">Urbaine</button>
+                <button class="tab-btn" data-tab="ecological">Écologique</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content active">
+                <div class="analytics-card">
+                    <h3>Trajets Vélo</h3>
+                    <div class="bike-stats">
+                        <div class="bike-stat">
+                            <div class="stat-number">3,932</div>
+                            <div class="stat-label">Total trajets</div>
+                        </div>
+                        <div class="bike-stat">
+                            <div class="stat-number">10,606.8 km</div>
+                            <div class="stat-label">Distance totale</div>
+                        </div>
+                        <div class="bike-stat">
+                            <div class="stat-number">1,253.0h</div>
+                            <div class="stat-label">Temps total</div>
+                        </div>
+                        <div class="bike-stat">
+                            <div class="stat-number">2.7 km</div>
+                            <div class="stat-label">Moyenne <span class="growth">+18%</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Performance Annuelle</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="yearly-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>FIXIE Token Economics</h3>
+                    <div class="token-economics">
+                        <div class="token-stat">
+                            <div class="stat-number">8,550</div>
+                            <div class="stat-label">FIXIE gagnés <span class="growth">+855 cette semaine</span></div>
+                        </div>
+                        <div class="token-stat">
+                            <div class="stat-number">0.8</div>
+                            <div class="stat-label">tokens/km moyenne</div>
+                        </div>
+                        <div class="token-stat">
+                            <div class="stat-number grade-a">A+</div>
+                            <div class="stat-label">Grade urbain</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="analytics-card">
+                    <h3>Records Personnels</h3>
+                    <div class="records-grid">
+                        <div class="record-item">
+                            <div class="record-value">93.4 km</div>
+                            <div class="record-label">Plus longue distance</div>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-value">33.7 km/h</div>
+                            <div class="record-label">Vitesse max</div>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-value">2,803</div>
+                            <div class="record-label">Calories max</div>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-value">285W</div>
+                            <div class="record-label">Puissance max</div>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-value">95 RPM</div>
+                            <div class="record-label">Cadence max</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Répartition des Activités</h3>
+                    <div class="activity-breakdown">
+                        <div class="activity-stat">
+                            <div class="stat-number">3,932</div>
+                            <div class="stat-label">Total entraînements</div>
+                        </div>
+                        <div class="activity-stat">
+                            <div class="stat-number">3,932</div>
+                            <div class="stat-label">Sessions vélo</div>
+                        </div>
+                        <div class="activity-stat">
+                            <div class="stat-number">19 min</div>
+                            <div class="stat-label">Durée moyenne</div>
+                        </div>
+                        <div class="activity-stat">
+                            <div class="stat-number">145 BPM</div>
+                            <div class="stat-label">Fréquence cardiaque moyenne</div>
+                        </div>
+                        <div class="activity-stat">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Sessions course</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends Tab -->
+            <div id="trends-tab" class="tab-content">
+                <div class="analytics-card">
+                    <h3>Distance dans le Temps</h3>
+                    <div class="trend-stats">
+                        <div class="trend-stat">
+                            <div class="stat-number">2.7 km</div>
+                            <div class="stat-label">Moyenne</div>
+                        </div>
+                        <div class="trend-stat">
+                            <div class="stat-number">93.4 km</div>
+                            <div class="stat-label">Maximum</div>
+                        </div>
+                        <div class="trend-stat">
+                            <div class="stat-number">119 km</div>
+                            <div class="stat-label">Total (30 jours)</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="distance-trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Tendance Vitesse Moyenne</h3>
+                    <div class="trend-stats">
+                        <div class="trend-stat">
+                            <div class="stat-number">10.7 km/h</div>
+                            <div class="stat-label">Vitesse moyenne</div>
+                        </div>
+                        <div class="trend-stat">
+                            <div class="stat-number">33.7 km/h</div>
+                            <div class="stat-label">Pic maximum</div>
+                        </div>
+                        <div class="trend-stat">
+                            <div class="stat-number">65%</div>
+                            <div class="stat-label">Zones cardio</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="speed-trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Urban Performance Tab -->
+            <div id="urban-tab" class="tab-content">
+                <div class="analytics-card">
+                    <h3>Classement Urbain</h3>
+                    <div class="urban-skills">
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Vitesse</span>
+                                <span class="skill-level">Débutant (0/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Endurance</span>
+                                <span class="skill-level">Débutant (27/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" style="width: 27%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Régularité</span>
+                                <span class="skill-level">Expert (100/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill expert" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Exploration</span>
+                                <span class="skill-level">Avancé (73/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill advanced" style="width: 73%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Navigation</span>
+                                <span class="skill-level">Débutant (0/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span class="skill-name">Efficacité</span>
+                                <span class="skill-level">Avancé (70/100)</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-fill advanced" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Défis Urbains Maîtrisés</h3>
+                    <div class="challenge-grid">
+                        <div class="challenge-item">
+                            <div class="challenge-name">Feux Rouges</div>
+                            <div class="challenge-score">85%</div>
+                        </div>
+                        <div class="challenge-item">
+                            <div class="challenge-name">Trafic Dense</div>
+                            <div class="challenge-score">78%</div>
+                        </div>
+                        <div class="challenge-item">
+                            <div class="challenge-name">Côtes</div>
+                            <div class="challenge-score">92%</div>
+                        </div>
+                        <div class="challenge-item">
+                            <div class="challenge-name">Intersections</div>
+                            <div class="challenge-score">88%</div>
+                        </div>
+                        <div class="challenge-item">
+                            <div class="challenge-name">Météo</div>
+                            <div class="challenge-score">76%</div>
+                        </div>
+                        <div class="challenge-item">
+                            <div class="challenge-name">Sécurité</div>
+                            <div class="challenge-score">95%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Performance par Période</h3>
+                    <div class="time-performance">
+                        <div class="time-item">
+                            <div class="time-label">Matin</div>
+                            <div class="time-stats">85% - 45 trajets</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-label">Midi</div>
+                            <div class="time-stats">72% - 28 trajets</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-label">Après-midi</div>
+                            <div class="time-stats">78% - 52 trajets</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-label">Soir</div>
+                            <div class="time-stats">88% - 38 trajets</div>
+                        </div>
+                        <div class="time-item">
+                            <div class="time-label">Nuit</div>
+                            <div class="time-stats">65% - 12 trajets</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Zones de Performance</h3>
+                    <div class="zone-performance">
+                        <div class="zone-item">
+                            <div class="zone-info">
+                                <div class="zone-name">Centre-ville</div>
+                                <div class="zone-type">Zone favorite</div>
+                            </div>
+                            <div class="zone-score">89%</div>
+                        </div>
+                        <div class="zone-item">
+                            <div class="zone-info">
+                                <div class="zone-name">Banlieue</div>
+                                <div class="zone-type">Zone vitesse</div>
+                            </div>
+                            <div class="zone-score">92%</div>
+                        </div>
+                        <div class="zone-item">
+                            <div class="zone-info">
+                                <div class="zone-name">Quartiers</div>
+                                <div class="zone-type">Zone exploration</div>
+                            </div>
+                            <div class="zone-score">85%</div>
+                        </div>
+                        <div class="zone-item">
+                            <div class="zone-info">
+                                <div class="zone-name">Périphérie</div>
+                                <div class="zone-type">Zone endurance</div>
+                            </div>
+                            <div class="zone-score">94%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ecological Tab -->
+            <div id="ecological-tab" class="tab-content">
+                <div class="analytics-card">
+                    <h3>Impact Écologique</h3>
+                    <div class="ecological-stats">
+                        <div class="eco-stat">
+                            <div class="eco-icon">🌍</div>
+                            <div class="eco-info">
+                                <div class="eco-number">1,272.8 kg</div>
+                                <div class="eco-label">CO₂ économisé</div>
+                            </div>
+                        </div>
+                        <div class="eco-stat">
+                            <div class="eco-icon">🌳</div>
+                            <div class="eco-info">
+                                <div class="eco-number">530</div>
+                                <div class="eco-label">Équivalent arbres</div>
+                            </div>
+                        </div>
+                        <div class="eco-stat">
+                            <div class="eco-icon">⛽</div>
+                            <div class="eco-info">
+                                <div class="eco-number">848.5 L</div>
+                                <div class="eco-label">Essence économisée</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="ecological-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DeFi View -->
+        <div id="defi-view" class="view">
+            <div class="defi-header">
+                <h2>Portfolio DeFi</h2>
+                <div class="portfolio-value">
+                    <div class="total-value">$4,275.00</div>
+                    <div class="value-change positive">+12.5%</div>
+                </div>
+            </div>
+
+            <div class="token-list">
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-symbol">FIXIE</div>
+                        <div class="token-name">Fixie Token</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="balance-amount">8,550</div>
+                        <div class="balance-value">$4,275.00</div>
+                    </div>
+                </div>
+                
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-symbol">ETH</div>
+                        <div class="token-name">Ethereum</div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="balance-amount">0.15</div>
+                        <div class="balance-value">$375.50</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="staking-section">
+                <div class="staking-card">
+                    <h3>Staking FIXIE</h3>
+                    <div class="staking-info">
+                        <div class="staking-stat">
+                            <div class="stat-label">APY</div>
+                            <div class="stat-value">12.5%</div>
+                        </div>
+                        <div class="staking-stat">
+                            <div class="stat-label">Staked</div>
+                            <div class="stat-value">5,000 FIXIE</div>
+                        </div>
+                        <div class="staking-stat">
+                            <div class="stat-label">Rewards</div>
+                            <div class="stat-value">625 FIXIE</div>
+                        </div>
+                    </div>
+                    <button class="btn btn--primary btn--full-width">Stake More</button>
+                </div>
+            </div>
+
+            <div class="market-section">
+                <h3>Market Updates</h3>
+                <div class="news-item">
+                    <div class="news-title">FIXIE Token Listed on Major Exchange</div>
+                    <div class="news-time">Il y a 2 heures</div>
+                </div>
+                <div class="news-item">
+                    <div class="news-title">New Partnership Announced</div>
+                    <div class="news-time">Il y a 5 heures</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workouts View -->
+        <div id="workouts-view" class="view">
+            <div class="workout-categories">
+                <button class="category-btn active">🚴 Vélo</button>
+                <button class="category-btn">🏃 Course</button>
+                <button class="category-btn">🚶 Marche</button>
+                <button class="category-btn">⚙️ Custom</button>
+            </div>
+
+            <div class="recent-workouts">
+                <h3>Entraînements Récents</h3>
+                <div class="workout-item">
+                    <div class="workout-info">
+                        <div class="workout-type">🚴 Vélo</div>
+                        <div class="workout-details">
+                            <div class="workout-distance">5.2 km</div>
+                            <div class="workout-time">38 min</div>
+                        </div>
+                    </div>
+                    <div class="workout-date">Aujourd'hui 14:30</div>
+                </div>
+                
+                <div class="workout-item">
+                    <div class="workout-info">
+                        <div class="workout-type">🚴 Vélo</div>
+                        <div class="workout-details">
+                            <div class="workout-distance">8.7 km</div>
+                            <div class="workout-time">52 min</div>
+                        </div>
+                    </div>
+                    <div class="workout-date">Hier 16:45</div>
+                </div>
+                
+                <div class="workout-item">
+                    <div class="workout-info">
+                        <div class="workout-type">🚴 Vélo</div>
+                        <div class="workout-details">
+                            <div class="workout-distance">3.1 km</div>
+                            <div class="workout-time">22 min</div>
+                        </div>
+                    </div>
+                    <div class="workout-date">20 Aug 09:15</div>
+                </div>
+            </div>
+
+            <div class="planned-workouts">
+                <h3>Entraînements Planifiés</h3>
+                <div class="planned-item">
+                    <div class="planned-info">
+                        <div class="planned-title">Sortie Vélo du Weekend</div>
+                        <div class="planned-details">25 km • 90 min</div>
+                    </div>
+                    <div class="planned-date">Samedi 08:00</div>
+                </div>
+                
+                <div class="planned-item">
+                    <div class="planned-info">
+                        <div class="planned-title">Session Endurance</div>
+                        <div class="planned-details">15 km • 60 min</div>
+                    </div>
+                    <div class="planned-date">Lundi 18:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rewards View -->
+        <div id="rewards-view" class="view">
+            <div class="rewards-header">
+                <div class="total-rewards">
+                    <div class="rewards-number">8,550</div>
+                    <div class="rewards-label">Total FIXIE</div>
+                </div>
+                <div class="streak-counter">
+                    <div class="streak-number">27</div>
+                    <div class="streak-label">Jours consécutifs</div>
+                </div>
+            </div>
+
+            <div class="level-progression">
+                <h3>Progression Niveau</h3>
+                <div class="level-card">
+                    <div class="level-info">
+                        <div class="current-level">Niveau 15</div>
+                        <div class="next-level">Niveau 16 dans 450 FIXIE</div>
+                    </div>
+                    <div class="level-bar">
+                        <div class="level-fill" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <h3>Accomplissements</h3>
+                <div class="achievement-grid">
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">🏆</div>
+                        <div class="achievement-name">Premier 1000</div>
+                        <div class="achievement-desc">Gagne 1000 FIXIE</div>
+                    </div>
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">🚴</div>
+                        <div class="achievement-name">Cycliste Régulier</div>
+                        <div class="achievement-desc">100 trajets vélo</div>
+                    </div>
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">📊</div>
+                        <div class="achievement-name">Analyste</div>
+                        <div class="achievement-desc">Expert en régularité</div>
+                    </div>
+                    <div class="achievement-item">
+                        <div class="achievement-icon">🎯</div>
+                        <div class="achievement-name">Marathon</div>
+                        <div class="achievement-desc">Parcours 100km</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaderboard-section">
+                <h3>Classement</h3>
+                <div class="leaderboard-item me">
+                    <div class="rank">15</div>
+                    <div class="user-info">
+                        <div class="username">Toi</div>
+                        <div class="user-score">8,550 FIXIE</div>
+                    </div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="rank">14</div>
+                    <div class="user-info">
+                        <div class="username">CycleKing</div>
+                        <div class="user-score">8,890 FIXIE</div>
+                    </div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="rank">16</div>
+                    <div class="user-info">
+                        <div class="username">SpeedRider</div>
+                        <div class="user-score">8,120 FIXIE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profile-view" class="view">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <div class="avatar-placeholder">👤</div>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name">Cycliste Pro</div>
+                    <div class="profile-stats">
+                        <span>Niveau 15</span> • <span>8,550 FIXIE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Paramètres</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Notifications</div>
+                        <div class="setting-desc">Alertes d'entraînement</div>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="notifications" checked>
+                        <label for="notifications"></label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Mode Sombre</div>
+                        <div class="setting-desc">Interface sombre</div>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="dark-mode" checked>
+                        <label for="dark-mode"></label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">GPS Haute Précision</div>
+                        <div class="setting-desc">Meilleur tracking</div>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="gps-precision" checked>
+                        <label for="gps-precision"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="integrations-section">
+                <h3>Intégrations Fitness</h3>
+                <div class="integration-grid">
+                    <div class="integration-item connected">
+                        <div class="integration-name">Apple HealthKit</div>
+                        <div class="integration-status">✅ Connecté</div>
+                    </div>
+                    <div class="integration-item connected">
+                        <div class="integration-name">Strava</div>
+                        <div class="integration-status">✅ Connecté</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Google Fit</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Fitbit</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Garmin Connect</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Samsung Health</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Polar Flow</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                    <div class="integration-item">
+                        <div class="integration-name">Suunto</div>
+                        <div class="integration-status">Connecter</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-section">
+                <h3>Compte</h3>
+                <button class="btn btn--outline btn--full-width mb-8">Synchroniser Données</button>
+                <button class="btn btn--outline btn--full-width mb-8">Paramètres Avancés</button>
+                <button class="btn btn--outline btn--full-width">Déconnexion</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Fullscreen Workout Modal -->
+    <div id="workout-modal" class="workout-modal hidden">
+        <div class="workout-header">
+            <button class="close-workout" id="close-workout">✕</button>
+            <div class="workout-title">Entraînement Vélo</div>
+        </div>
+        <div class="workout-metrics">
+            <div class="metric-large">
+                <div class="metric-value" id="workout-speed">0.0</div>
+                <div class="metric-unit">km/h</div>
+                <div class="metric-label">Vitesse</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-small">
+                    <div class="metric-value" id="workout-distance">0.00</div>
+                    <div class="metric-label">Distance (km)</div>
+                </div>
+                <div class="metric-small">
+                    <div class="metric-value" id="workout-time">00:00</div>
+                    <div class="metric-label">Temps</div>
+                </div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-small">
+                    <div class="metric-value" id="workout-calories">0</div>
+                    <div class="metric-label">Calories</div>
+                </div>
+                <div class="metric-small">
+                    <div class="metric-value" id="workout-tokens">0</div>
+                    <div class="metric-label">FIXIE</div>
+                </div>
+            </div>
+        </div>
+        <div class="workout-controls-modal">
+            <button class="btn btn--secondary" id="pause-workout">⏸ Pause</button>
+            <button class="btn btn--primary" id="stop-workout">⏹ Terminer</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-view="home">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </button>
+        <button class="nav-item" data-view="defi">
+            <div class="nav-icon">💰</div>
+            <div class="nav-label">DeFi</div>
+        </button>
+        <button class="nav-item" data-view="analytics">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Analytics</div>
+        </button>
+        <button class="nav-item" data-view="workouts">
+            <div class="nav-icon">💪</div>
+            <div class="nav-label">Workouts</div>
+        </button>
+        <button class="nav-item" data-view="rewards">
+            <div class="nav-icon">🏆</div>
+            <div class="nav-label">Rewards</div>
+        </button>
+        <button class="nav-item" data-view="profile">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Profile</div>
+        </button>
+    </nav>
+
+    <script src="app.js"></script>
+</body>
+</html>
